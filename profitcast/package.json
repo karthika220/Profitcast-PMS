@@ -1,0 +1,12 @@
+{
+  "name": "profitcast",
+  "version": "1.0.0",
+  "description": "Profitcast Project Management System",
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "setup:db": "cd server && npx prisma migrate dev --name init && node prisma/seed.js",
+    "start": "cd server && npm start"
+  }
+}

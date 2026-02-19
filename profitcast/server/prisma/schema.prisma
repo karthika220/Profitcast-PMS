@@ -1,0 +1,288 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        String   @default("EMPLOYEE")
+  avatar      String?
+  phone       String?
+  department  String?
+  joinDate    DateTime @default(now())
+  birthday    DateTime?
+  isActive    Boolean  @default(true)
+  resetToken  String?
+  resetTokenExpiry DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  projectsOwned     Project[]       @relation("ProjectOwner")
+  projectMembers    ProjectMember[]
+  tasksAssigned     Task[]          @relation("TaskAssignee")
+  tasksCreated      Task[]          @relation("TaskCreator")
+  timesheets        Timesheet[]
+  comments          Comment[]
+  notifications     Notification[]  @relation("NotificationRecipient")
+  notificationsSent Notification[]  @relation("NotificationSender")
+  leavesApplied     Leave[]         @relation("LeaveApplicant")
+  leavesApproved    Leave[]         @relation("LeaveApprover")
+  activityLogs      ActivityLog[]
+  milestones        Milestone[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("PLANNING")
+  startDate   DateTime
+  endDate     DateTime
+  budget      Float?
+  color       String        @default("#3B82F6")
+  tags        String?
+  ownerId     String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  owner       User            @relation("ProjectOwner", fields: [ownerId], references: [id])
+  members     ProjectMember[]
+  tasks       Task[]
+  milestones  Milestone[]
+  documents   Document[]
+  activityLogs ActivityLog[]
+
+  @@index([status])
+  @@index([ownerId])
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      String   @default("CONTRIBUTOR") // LEAD or CONTRIBUTOR
+  joinedAt  DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+model Milestone {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  targetDate  DateTime
+  completedAt DateTime?
+  isCompleted Boolean  @default(false)
+  projectId   String
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner       User     @relation(fields: [ownerId], references: [id])
+  tasks       Task[]
+
+  @@index([projectId])
+  @@index([targetDate])
+}
+
+model Task {
+  id           String       @id @default(uuid())
+  title        String
+  description  String?
+  status       String   @default("TODO")
+  priority     String   @default("MEDIUM")
+  startDate    DateTime?
+  dueDate      DateTime?
+  completedAt  DateTime?
+  estimatedHours Float?
+  tags         String?
+  projectId    String
+  milestoneId  String?
+  assigneeId   String?
+  creatorId    String
+  parentTaskId String?
+  isRecurring  Boolean      @default(false)
+  recurringSchedule String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone    Milestone?   @relation(fields: [milestoneId], references: [id])
+  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  creator      User         @relation("TaskCreator", fields: [creatorId], references: [id])
+  parentTask   Task?        @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks     Task[]       @relation("Subtasks")
+  timesheets   Timesheet[]
+  comments     Comment[]
+  documents    Document[]
+  activityLogs ActivityLog[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Timesheet {
+  id          String   @id @default(uuid())
+  userId      String
+  taskId      String
+  date        DateTime
+  hoursLogged Float
+  description String?
+  isBillable  Boolean  @default(true)
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([taskId])
+  @@index([date])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  taskId    String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  parent    Comment? @relation("Replies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("Replies")
+
+  @@index([taskId])
+  @@index([userId])
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  name        String
+  url         String
+  size        Int
+  mimeType    String
+  projectId   String?
+  taskId      String?
+  uploadedById String
+  createdAt   DateTime @default(now())
+
+  project     Project? @relation(fields: [projectId], references: [id])
+  task        Task?    @relation(fields: [taskId], references: [id])
+
+  @@index([projectId])
+  @@index([taskId])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  type        String
+  title       String
+  message     String
+  isRead      Boolean          @default(false)
+  recipientId String
+  senderId    String?
+  metadata    String?
+  createdAt   DateTime         @default(now())
+
+  recipient   User             @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender      User?            @relation("NotificationSender", fields: [senderId], references: [id])
+
+  @@index([recipientId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model Leave {
+  id          String      @id @default(uuid())
+  userId      String
+  type        String      // ANNUAL, SICK, EMERGENCY, etc.
+  startDate   DateTime
+  endDate     DateTime
+  reason      String
+  status      String   @default("PENDING")
+  approverId  String?
+  approvedAt  DateTime?
+  comments    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user        User        @relation("LeaveApplicant", fields: [userId], references: [id])
+  approver    User?       @relation("LeaveApprover", fields: [approverId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Settings {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  action      String
+  entity      String
+  entityId    String
+  details     String?
+  projectId   String?
+  taskId      String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  project     Project? @relation(fields: [projectId], references: [id])
+  task        Task?    @relation(fields: [taskId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([projectId])
+  @@index([taskId])
+  @@index([createdAt])
+}
+
+model AutomationRule {
+  id          String   @id @default(uuid())
+  name        String
+  trigger     String
+  action      String
+  conditions  String?
+  isActive    Boolean  @default(true)
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+}
