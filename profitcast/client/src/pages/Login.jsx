@@ -50,37 +50,47 @@ export default function Login() {
   const quickLogin = (email) => setForm({ email, password: 'Password123!' });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-app-bg bg-radial-gradient flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Grid Pattern Overlay */}
+      <div 
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}
+      />
+      
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl mb-4 shadow-xl">
-            <span className="text-white text-2xl font-bold">P</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-brand-teal to-brand-mint rounded-2xl mb-4 shadow-glow-teal animate-pulse-glow">
+            <span className="text-black text-3xl font-bold font-rubik">P</span>
           </div>
-          <h1 className="text-3xl font-bold text-white">Profitcast</h1>
-          <p className="text-blue-300 mt-1 text-sm">Project Management System</p>
+          <h1 className="text-4xl font-bold text-gradient font-rubik mb-2">Profitcast</h1>
+          <p className="text-text-secondary text-sm font-inter">Project Management System</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="card-glass">
           {/* Toggle Buttons */}
-          <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+          <div className="flex mb-6 bg-surface-highlight rounded-xl p-1 border border-white/5">
             <button
               onClick={() => setIsRegisterMode(false)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
                 !isRegisterMode 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-gradient-to-r from-brand-teal to-brand-mint text-black shadow-glow-teal' 
+                  : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsRegisterMode(true)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isRegisterMode 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-gradient-to-r from-brand-teal to-brand-mint text-black shadow-glow-teal' 
+                  : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               New Employee
@@ -90,17 +100,17 @@ export default function Login() {
           {/* Login Form */}
           {!isRegisterMode && (
             <>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Sign in to your account</h2>
+              <h2 className="text-2xl font-semibold text-text-primary mb-6 font-rubik">Sign in to your account</h2>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+                <div className="bg-red-500/10 text-red-400 border border-red-500/30 px-4 py-3 rounded-xl mb-4 text-sm animate-slide-in">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">Email address</label>
                   <input
                     type="email"
                     required
@@ -111,7 +121,7 @@ export default function Login() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">Password</label>
                   <input
                     type="password"
                     required
@@ -124,15 +134,15 @@ export default function Login() {
 
                 <div className="flex items-center justify-between text-sm">
                   <span></span>
-                  <Link to="/forgot-password" className="text-blue-600 hover:text-blue-700 font-medium">
+                  <Link to="/forgot-password" className="text-brand-teal hover:text-brand-mint font-medium transition-colors">
                     Forgot password?
                   </Link>
                 </div>
 
-                <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 text-base">
+                <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
@@ -143,8 +153,8 @@ export default function Login() {
               </form>
 
               {/* Quick login */}
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <p className="text-xs text-gray-500 mb-3 font-medium">QUICK LOGIN (DEMO)</p>
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <p className="text-xs text-text-muted mb-3 font-medium font-inter">QUICK LOGIN (DEMO)</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: 'MD', email: 'md@profitcast.com' },
@@ -155,15 +165,15 @@ export default function Login() {
                     <button
                       key={item.email}
                       onClick={() => quickLogin(item.email)}
-                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg py-2 px-3 transition-colors text-left"
+                      className="text-xs bg-surface-highlight hover:bg-surface border border-white/10 text-text-secondary rounded-xl py-3 px-3 transition-all duration-200 text-left hover:border-brand-teal/50"
                     >
-                      <span className="font-semibold">{item.label}</span>
+                      <span className="font-semibold text-text-primary font-rubik">{item.label}</span>
                       <br />
-                      <span className="text-gray-500 truncate block">{item.email}</span>
+                      <span className="text-text-muted truncate block font-inter">{item.email}</span>
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-gray-400 mt-2 text-center">Password: Password123!</p>
+                <p className="text-xs text-text-muted mt-3 text-center font-inter">Password: Password123!</p>
               </div>
             </>
           )}
@@ -171,10 +181,10 @@ export default function Login() {
           {/* Register Form */}
           {isRegisterMode && (
             <>
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Create your account</h2>
+              <h2 className="text-2xl font-semibold text-text-primary mb-6 font-rubik">Create your account</h2>
 
               {registerError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+                <div className="bg-red-500/10 text-red-400 border border-red-500/30 px-4 py-3 rounded-xl mb-4 text-sm animate-slide-in">
                   {registerError}
                 </div>
               )}
@@ -182,7 +192,7 @@ export default function Login() {
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">First Name</label>
                     <input
                       type="text"
                       required
@@ -193,7 +203,7 @@ export default function Login() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">Last Name</label>
                     <input
                       type="text"
                       required
@@ -206,7 +216,7 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">Email address</label>
                   <input
                     type="email"
                     required
@@ -218,7 +228,7 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">Department</label>
                   <select
                     required
                     value={registerForm.department}
@@ -236,7 +246,7 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 font-inter">Password</label>
                   <input
                     type="password"
                     required
@@ -248,10 +258,10 @@ export default function Login() {
                   />
                 </div>
 
-                <button type="submit" disabled={registerLoading} className="btn-primary w-full py-2.5 text-base">
+                <button type="submit" disabled={registerLoading} className="btn-primary w-full py-3 text-base">
                   {registerLoading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
@@ -261,11 +271,11 @@ export default function Login() {
                 </button>
               </form>
 
-              <div className="mt-4 text-center text-sm text-gray-600">
+              <div className="mt-4 text-center text-sm text-text-secondary">
                 Already have an account?{' '}
                 <button
                   onClick={() => setIsRegisterMode(false)}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-brand-teal hover:text-brand-mint font-medium transition-colors"
                 >
                   Sign in
                 </button>

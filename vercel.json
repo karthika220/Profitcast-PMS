@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "profitcast-pms",
+  "builds": [
+    {
+      "src": "profitcast/client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/profitcast/server/simple-server.js",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/profitcast/client/dist/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "profitcast/server/simple-server.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
